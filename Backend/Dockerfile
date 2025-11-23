@@ -1,24 +1,38 @@
-# 1 — Base image
-FROM node:18-alpine
-
-# 2 — Set working directory
+# Stage 1: build
+FROM node:18-alpine AS builder
 WORKDIR /app
 
-# 3 — Install dependencies
+# copy package files first (for better caching)
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-# 4 — Copy source files
-COPY . .
+# copy source and prisma files
+COPY prisma ./prisma
+COPY tsconfig.json ./
+COPY src ./src
 
-# 5 — Generate Prisma Client
+# generate Prisma client and build
 RUN npx prisma generate
-
-# 6 — Build TypeScript
 RUN npm run build
 
-# 7 — Expose backend port
+# Stage 2: runtime
+FROM node:18-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+# install production dependencies only
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# copy build and prisma client from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+
+# copy prisma schema if needed (optional)
+COPY prisma/schema.prisma ./prisma/schema.prisma
+
 EXPOSE 3000
 
-# 8 — Start server
-CMD ["npm", "start"]
+# Run migrations then start (use npx prisma migrate deploy for production migrations)
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]

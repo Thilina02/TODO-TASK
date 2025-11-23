@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import taskRoutes from './routes/taskRoutes';
+import todoRoutes from './routes/todoRoutes';
 
 dotenv.config();
 
@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', taskRoutes);
+app.use('/api', todoRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });

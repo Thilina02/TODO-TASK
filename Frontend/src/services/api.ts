@@ -24,17 +24,17 @@ export interface CreateTaskInput {
 
 export const taskApi = {
   getTasks: async (): Promise<Task[]> => {
-    const response = await api.get<Task[]>('/tasks');
+    const response = await api.get<Task[]>('/todos');
     return response.data;
   },
 
   createTask: async (data: CreateTaskInput): Promise<Task> => {
-    const response = await api.post<Task>('/tasks', data);
+    const response = await api.post<Task>('/todos', data);
     return response.data;
   },
 
   completeTask: async (id: number): Promise<void> => {
-    await api.patch(`/tasks/${id}/complete`);
+    await api.patch(`/todos/${id}/complete`);
   },
 };
 

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const prisma_js_1 = __importDefault(require("../prisma.js"));
 class TaskService {
     async createTask(data) {
-        return await prisma_js_1.default.task.create({
+        return await prisma_js_1.default.todo.create({
             data: {
                 title: data.title,
                 description: data.description || null,
@@ -14,7 +14,7 @@ class TaskService {
         });
     }
     async getRecentTasks(limit = 5) {
-        return await prisma_js_1.default.task.findMany({
+        return await prisma_js_1.default.todo.findMany({
             where: {
                 completed: false,
             },
@@ -25,13 +25,13 @@ class TaskService {
         });
     }
     async markTaskAsCompleted(id) {
-        return await prisma_js_1.default.task.update({
+        return await prisma_js_1.default.todo.update({
             where: { id },
             data: { completed: true },
         });
     }
     async getTaskById(id) {
-        return await prisma_js_1.default.task.findUnique({
+        return await prisma_js_1.default.todo.findUnique({
             where: { id },
         });
     }
