@@ -12,9 +12,14 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ./backend
+    build: ./Backend
     container_name: todo-backend
     restart: always
     ports:
@@ -23,19 +28,23 @@ services:
       DATABASE_URL: "mysql://root:root@mysql:3306/todo"
       PORT: 3000
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     command: >
       sh -c "
-      npx prisma migrate deploy &&
+      npx prisma generate &&
+      npx prisma db push --accept-data-loss &&
       npm start
       "
 
   frontend:
-    build: ./frontend
+    build: ./Frontend
     container_name: todo-frontend
     restart: always
     ports:
       - "5173:80"
+    environment:
+      VITE_API_URL: "http://localhost:3000/api"
     depends_on:
       - backend
 

@@ -11,11 +11,14 @@ RUN npm install
 # 4 — Copy source files
 COPY . .
 
-# 5 — Build TypeScript
+# 5 — Generate Prisma Client
+RUN npx prisma generate
+
+# 6 — Build TypeScript
 RUN npm run build
 
-# 6 — Expose backend port
+# 7 — Expose backend port
 EXPOSE 3000
 
-# 7 — Start server
+# 8 — Start server
 CMD ["npm", "start"]
